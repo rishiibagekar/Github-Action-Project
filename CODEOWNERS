@@ -1,0 +1,9 @@
+#patterns
+#file/directory     user
+# Order is important. The last matching pattern has the most precedence.
+
+#sf comp review
+force-app/*         @rishiibagekar
+
+#yml script review
+*.yaml              @rishibagekar

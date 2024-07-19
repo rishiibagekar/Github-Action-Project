@@ -6,4 +6,4 @@
 force-app/*         @rishiibagekar
 
 #yml script review
-*.yaml              @rishibagekar
+*.yaml,.yml         @rishibagekar

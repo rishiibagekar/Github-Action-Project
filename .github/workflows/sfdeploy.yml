@@ -34,38 +34,27 @@ jobs:
     - name: Authenticate with DevHub
       run: sf org login sfdx-url --sfdx-url-file files/sfdx-auth-prod
     
-    - name: Create Scratch Org
-      run: sfdx force:org:create -s -f config/project-scratch-def.json -d 1 -a ScratchOrg
- 
-    - name: Push Source to Scratch Org
-      run: sfdx force:source:push -u ScratchOrg
- 
-    - name: Run Apex Tests
-      run: sfdx force:apex:test:run --resultformat human --codecoverage --testlevel RunLocalTests --wait 10 -u ScratchOrg
+    - name: Create Salesforce Unlocked package
+      run: sfdx force:package:version:create -p DemoPackage -d force-app -w 10 --codecoverage --wait 10
  
     - name: Static Code Analysis with SonarQube
       uses: sonarsource/sonarcloud-github-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
+        projectBaseDir: ./force-app
         args: >
           -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
           -Dsonar.organization=rishiibagekar
           -Dsonar.sources=src
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+    - name: Run SonarCloud analysis
+      run: sonar-scanner
  
-    - name: Convert source to MDAPI format
-      run: sfdx force:source:convert -d mdapi_output_dir -r force-app
- 
-    - name: Validate the Package
-      run: sfdx force:mdapi:deploy -d mdapi_output_dir -u DevHub -w 10 -c
- 
-    - name: Deploy the Package
-      if: github.ref == 'refs/heads/main'
-      run: sfdx force:mdapi:deploy -d mdapi_output_dir -u DevHub -w 10
- 
-    - name: Delete Scratch Org
-      if: always()
-      run: sfdx force:org:delete -u ScratchOrg -p
+    - name: Install Salesforce Unlocked package
+      run: sfdx force:package:install --package DemoPackage --wait 10 -r
 
     - name: Workflow succeeded
       run: echo "Workflow succeded"

@@ -35,7 +35,7 @@ jobs:
       run: sf org login sfdx-url --sfdx-url-file files/sfdx-auth-prod
     
     - name: Create Salesforce Unlocked package
-      run: sfdx force:package:version:create -p DemoPackage -d force-app -w 10 --codecoverage --wait 10
+      run: sfdx force:package:version:create -p DemoPackage -d force-app -w 10 --codecoverage
  
     - name: Static Code Analysis with SonarQube
       uses: sonarsource/sonarcloud-github-action@master
@@ -54,7 +54,7 @@ jobs:
       run: sonar-scanner
  
     - name: Install Salesforce Unlocked package
-      run: sfdx force:package:install --package DemoPackage --wait 10 -r
+      run: sfdx force:package:install --package DemoPackage --w 10 -r
 
     - name: Workflow succeeded
       run: echo "Workflow succeded"

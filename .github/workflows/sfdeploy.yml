@@ -35,7 +35,7 @@ jobs:
       run: sf org login sfdx-url --sfdx-url-file files/sfdx-auth-prod
     
     - name: Create Salesforce Unlocked package
-      run: sf package version create --name DemoPackage --description "My Package" --package-type Unlocked --installation-key-bypass --wait 10 --path force-app --no-namespace --target-dev-hub DevHub
+      run: sf package version create --name DemoPackage --description "My Package" --package-type Unlocked --installation-key-bypass --wait 10 --path force-app --no-namespace --target-dev-hub $SFDX_DEFAULTDEVHUBUSERNAME
     
     - name: Static Code Analysis with SonarQube
       uses: sonarsource/sonarcloud-github-action@master

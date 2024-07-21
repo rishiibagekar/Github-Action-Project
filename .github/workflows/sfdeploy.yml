@@ -1,0 +1,65 @@
+name: Salesforce Unlocked Package Validation and Deployment with SonarCloud security check
+ 
+on:
+  pull_request:
+    branches:
+      - main
+ 
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      SFDX_DEFAULTDEVHUBUSERNAME: ${{ secrets.SFDX_DEFAULTDEVHUBUSERNAME }}
+      SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      SONAR_PROJECT_NAME: 'Github Action Sonar Cloud'
+      SONAR_PROJECT_VERSION: '1.0'
+ 
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+ 
+    - name: Setup Salesforce CLI
+      uses: forcedotcom/cli-sfdx-build@v1
+      with:
+        version: latest
+ 
+    - name: Authenticate with DevHub
+      run: echo $SFDX_AUTH_URL | sfdx auth sfdxurl store --setdefaultdevhubusername --setalias DevHub
+ 
+    - name: Create Scratch Org
+      run: sfdx force:org:create -s -f config/project-scratch-def.json -d 1 -a ScratchOrg
+ 
+    - name: Push Source to Scratch Org
+      run: sfdx force:source:push -u ScratchOrg
+ 
+    - name: Run Apex Tests
+      run: sfdx force:apex:test:run --resultformat human --codecoverage --testlevel RunLocalTests --wait 10 -u ScratchOrg
+ 
+    - name: Static Code Analysis with SonarQube
+      uses: sonarsource/sonarcloud-github-action@master
+      with:
+        args: >
+          -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=rishiibagekar
+          -Dsonar.sources=src
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+ 
+    - name: Convert source to MDAPI format
+      run: sfdx force:source:convert -d mdapi_output_dir -r force-app
+ 
+    - name: Validate the Package
+      run: sfdx force:mdapi:deploy -d mdapi_output_dir -u DevHub -w 10 -c
+ 
+    - name: Deploy the Package
+      if: github.ref == 'refs/heads/main'
+      run: sfdx force:mdapi:deploy -d mdapi_output_dir -u DevHub -w 10
+ 
+    - name: Delete Scratch Org
+      if: always()
+      run: sfdx force:org:delete -u ScratchOrg -p
+
+    - name: Workflow succeeded
+      run: echo "Workflow succeded"

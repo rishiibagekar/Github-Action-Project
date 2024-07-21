@@ -20,10 +20,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
  
-    - name: Setup Salesforce CLI
-      uses: forcedotcom/cli-sfdx-build@v1
+    - name: Install Node JS
+      uses: actions/setup-node@v3
       with:
-        version: latest
+          node-version: 18
+
+    - name: Install SFDX CLI
+        run: |
+          npm install @salesforce/cli --global
+          echo sf version
+          sf --version
  
     - name: Authenticate with DevHub
       run: echo $SFDX_AUTH_URL | sfdx auth sfdxurl store --setdefaultdevhubusername --setalias DevHub

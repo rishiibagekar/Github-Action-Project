@@ -32,7 +32,7 @@ jobs:
           sf --version
  
     - name: Authenticate with DevHub
-      run: sfdx force:auth:sfdxurl:store --sfdxurlfile $SFDX_AUTH_URL
+      run: sfdx force:auth:sfdxurl:store --sfdx-url-file $SFDX_AUTH_URL
     
     - name: Create Scratch Org
       run: sfdx force:org:create -s -f config/project-scratch-def.json -d 1 -a ScratchOrg

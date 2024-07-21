@@ -3,7 +3,7 @@
 # Order is important. The last matching pattern has the most precedence.
 
 #sf comp review
-force-app/*         @rishiibagekar
+force-app/*         @rishibagekar
 
 #yml script review
 *.yaml,.yml         @rishibagekar

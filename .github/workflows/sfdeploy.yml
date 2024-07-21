@@ -32,8 +32,8 @@ jobs:
           sf --version
  
     - name: Authenticate with DevHub
-      run: echo $SFDX_AUTH_URL | sfdx auth sfdxurl store --setdefaultdevhubusername --setalias DevHub
- 
+      run: sfdx force:auth:sfdxurl:store --sfdxurlfile $SFDX_AUTH_URL
+    
     - name: Create Scratch Org
       run: sfdx force:org:create -s -f config/project-scratch-def.json -d 1 -a ScratchOrg
  

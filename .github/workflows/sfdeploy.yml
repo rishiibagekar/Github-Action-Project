@@ -36,6 +36,28 @@ jobs:
     
     - name: Create scratch org
       run: sf org create scratch --definition-file config/project-scratch-def.json --alias MyScratchOrg --target-dev-hub DevHub
+
+    - name: Push source to Scratch org
+      run: sf project deploy start
+              
+    - name: 'Run Apex tests'
+      run: sf apex run test --target-org MyScratchOrg
+
+    - name: Static Code Analysis with SonarQube
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        projectBaseDir: ./force-app
+        args: >
+          -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=rishiibagekar
+          -Dsonar.sources=src
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+    - name: Run SonarCloud analysis
+      run: sonar-scanner
       
     - name: Create Salesforce Unlocked package
       run: sf package version create --name DemoPackage --description "My Package" --package-type Unlocked --installation-key-bypass --wait 10 --path force-app --no-namespace --target-dev-hub $SFDX_DEFAULTDEVHUBUSERNAME

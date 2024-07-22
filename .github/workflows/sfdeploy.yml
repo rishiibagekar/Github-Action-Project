@@ -1,0 +1,69 @@
+name: Salesforce Unlocked Package Validation and Deployment with SonarCloud security check
+ 
+on:
+  pull_request:
+    branches:
+      - main
+ 
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      SFDX_DEFAULTDEVHUBUSERNAME: ${{ secrets.SFDX_DEFAULTDEVHUBUSERNAME }}
+      SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      SONAR_PROJECT_NAME: 'Github Action Sonar Cloud'
+      SONAR_PROJECT_VERSION: '1.0'
+ 
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+ 
+    - name: Install Node JS
+      uses: actions/setup-node@v3
+      with:
+          node-version: 18
+
+    - name: Install SFDX CLI
+      run: |
+          npm install @salesforce/cli --global
+          echo sf version
+          sf --version
+ 
+    - name: Authenticate with DevHub
+      run: sf org login sfdx-url --sfdx-url-file files/sfdx-auth-prod -a DevHub
+    
+    - name: Create scratch org
+      run: sf org create scratch --definition-file config/project-scratch-def.json --alias MyScratchOrg --target-dev-hub DevHub
+
+    - name: Push source to Scratch org
+      run: sf project deploy start --target-org MyScratchOrg
+              
+    - name: 'Run Apex tests'
+      run: |
+          sf apex run test --target-org MyScratchOrg
+
+    - name: Static Code Analysis with SonarQube
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        args: >
+          -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=rishiibagekar
+          -Dsonar.sources=src
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      
+    - name: Create Salesforce Unlocked package
+      run: |
+          sf package create --name DemoPackage --description "Demo Package" --package-type Unlocked --path force-app --no-namespace --target-dev-hub DevHub
+          
+    - name: Install Salesforce Unlocked package
+      run: sf package install --wait 10 --publish-wait 10 --package DemoPackage --installation-key-bypass --no-prompt --target-org MyScratchOrg
+
+    - name: Delete Scratch Org
+      run: sf org delete scratch --target-org MyScratchOrg
+
+    - name: Workflow succeeded
+      run: echo "Workflow succeded"

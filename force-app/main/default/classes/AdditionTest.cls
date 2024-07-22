@@ -9,7 +9,7 @@ public class AdditonTest {
         Integer expectedResult = 15;
         
         // Call the method and store the result
-        Integer result = MathOperations.addNumbers(num1, num2);
+        Integer result = Addition.addNumbers(num1, num2);
         
         // Assert the result
         System.assertEquals(expectedResult, result, 'The addition result is incorrect.');
@@ -22,7 +22,7 @@ public class AdditonTest {
         Integer num2 = -10;
         Integer expectedResult = -15;
         
-        Integer result = MathOperations.addNumbers(num1, num2);
+        Integer result = Addition.addNumbers(num1, num2);
         
         System.assertEquals(expectedResult, result, 'The addition of negative numbers is incorrect.');
     }
@@ -34,7 +34,7 @@ public class AdditonTest {
         Integer num2 = 0;
         Integer expectedResult = 0;
         
-        Integer result = MathOperations.addNumbers(num1, num2);
+        Integer result = Addition.addNumbers(num1, num2);
         
         System.assertEquals(expectedResult, result, 'The addition with zero is incorrect.');
     }

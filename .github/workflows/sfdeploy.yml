@@ -38,7 +38,7 @@ jobs:
       run: sf org create scratch --definition-file config/project-scratch-def.json --alias MyScratchOrg --target-dev-hub DevHub
 
     - name: Push source to Scratch org
-      run: sf project deploy start
+      run: sf project deploy start --target-org MyScratchOrg
               
     - name: 'Run Apex tests'
       run: sf apex run test --target-org MyScratchOrg

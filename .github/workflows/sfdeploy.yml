@@ -32,8 +32,11 @@ jobs:
           sf --version
  
     - name: Authenticate with DevHub
-      run: sf org login sfdx-url --sfdx-url-file files/sfdx-auth-prod
+      run: sf org login sfdx-url --sfdx-url-file files/sfdx-auth-prod -a DevHub
     
+    - name: Create scratch org
+      run: sf org create scratch --definition-file config/project-scratch-def.json --alias MyScratchOrg --target-dev-hub DevHub
+      
     - name: Create Salesforce Unlocked package
       run: sf package version create --name DemoPackage --description "My Package" --package-type Unlocked --installation-key-bypass --wait 10 --path force-app --no-namespace --target-dev-hub $SFDX_DEFAULTDEVHUBUSERNAME
     

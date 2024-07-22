@@ -53,31 +53,17 @@ jobs:
           -Dsonar.sources=src
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-
-    - name: Run SonarCloud analysis
-      run: sonar-scanner
       
     - name: Create Salesforce Unlocked package
-      run: sf package version create --name DemoPackage --description "My Package" --package-type Unlocked --installation-key-bypass --wait 10 --path force-app --no-namespace --target-dev-hub $SFDX_DEFAULTDEVHUBUSERNAME
-    
-    - name: Static Code Analysis with SonarQube
-      uses: sonarsource/sonarcloud-github-action@master
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      with:
-        projectBaseDir: ./force-app
-        args: >
-          -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
-          -Dsonar.organization=rishiibagekar
-          -Dsonar.sources=src
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-
-    - name: Run SonarCloud analysis
-      run: sonar-scanner
+      run: |
+          sf package create --name DemoPackage --description "Demo Package" --package-type Unlocked --path force-app --no-namespace --target-dev-hub DevHub
+          sf package version create --package DemoPackage --installation-key-bypass --wait 10 --target-dev-hub DevHub
  
     - name: Install Salesforce Unlocked package
-      run: sfdx force:package:install --package DemoPackage --w 10 --installation-key-bypass -r
+      run: sf package install --wait 10 --publish-wait 10 --package DemoPackage --installation-key-bypass --no-prompt --target-org MyScratchOrg
+
+    - name: Delete Scratch Org
+      run: sf org delete scratch --target-org MyScratchOrg
 
     - name: Workflow succeeded
       run: echo "Workflow succeded"

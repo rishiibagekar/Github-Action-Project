@@ -1,5 +1,5 @@
 @isTest
-public class AdditonTest {
+public class AdditionTest {
     // Test method for addNumbers
     @isTest
     static void testAddNumbers() {

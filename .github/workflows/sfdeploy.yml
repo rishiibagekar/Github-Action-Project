@@ -43,7 +43,6 @@ jobs:
     - name: 'Run Apex tests'
       run: |
           sf apex run test --target-org MyScratchOrg
-          sf apex get test -i 707Oy00000VIiyn -o test-dv1mievzydgj@example.com
 
     - name: Static Code Analysis with SonarQube
       uses: sonarsource/sonarcloud-github-action@master

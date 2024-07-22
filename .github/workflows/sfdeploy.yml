@@ -41,7 +41,9 @@ jobs:
       run: sf project deploy start --target-org MyScratchOrg
               
     - name: 'Run Apex tests'
-      run: sf apex run test --target-org MyScratchOrg
+      run: |
+          sf apex run test --target-org MyScratchOrg
+          sf apex get test -i 707Oy00000VIiyn -o test-dv1mievzydgj@example.com
 
     - name: Static Code Analysis with SonarQube
       uses: sonarsource/sonarcloud-github-action@master
@@ -57,8 +59,7 @@ jobs:
     - name: Create Salesforce Unlocked package
       run: |
           sf package create --name DemoPackage --description "Demo Package" --package-type Unlocked --path force-app --no-namespace --target-dev-hub DevHub
-          sf package version create --package DemoPackage --installation-key-bypass --wait 10 --target-dev-hub DevHub
- 
+          
     - name: Install Salesforce Unlocked package
       run: sf package install --wait 10 --publish-wait 10 --package DemoPackage --installation-key-bypass --no-prompt --target-org MyScratchOrg
 
